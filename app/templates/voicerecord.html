@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Recorder</title>
+</head>
+<body>
+
+<h2>Voice Recorder</h2>
+
+<button onclick="startRecording()">Start Recording</button>
+<button onclick="stopRecording()">Stop Recording</button>
+
+<br><br>
+<audio id="audioPlayback" controls></audio>
+
+<script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    async function startRecording() {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.start();
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        console.log("Recording started...");
+    }
+
+    function stopRecording() {
+        mediaRecorder.stop();
+
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+            const audioURL = URL.createObjectURL(audioBlob);
+
+            document.getElementById("audioPlayback").src = audioURL;
+
+            console.log("Recording stopped.");
+        };
+    }
+</script>
+
+</body>
+</html>
